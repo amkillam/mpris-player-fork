@@ -11,4 +11,4 @@ keywords = ["mpris", "dbus"]
 
 [dependencies]
 dbus = "0.6.5"
-glib = "0.10.1"
+glib = "0.10.3"
