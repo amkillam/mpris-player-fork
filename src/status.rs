@@ -1,5 +1,5 @@
-#[derive(Debug, Copy, Clone)]
-pub enum PlaybackStatus{
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum PlaybackStatus {
     Playing,
     Paused,
     Stopped,
@@ -15,9 +15,8 @@ impl PlaybackStatus {
     }
 }
 
-
-#[derive(Debug, Copy, Clone)]
-pub enum LoopStatus{
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum LoopStatus {
     None,
     Track,
     Playlist,

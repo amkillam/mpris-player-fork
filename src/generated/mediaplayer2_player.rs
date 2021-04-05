@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use dbus as dbus;
+use dbus;
 use dbus::arg;
 use dbus::tree;
 
@@ -21,7 +21,12 @@ pub trait OrgMprisMediaPlayer2Player {
     fn set_rate(&self, value: f64) -> Result<(), Self::Err>;
     fn get_shuffle(&self) -> Result<bool, Self::Err>;
     fn set_shuffle(&self, value: bool) -> Result<(), Self::Err>;
-    fn get_metadata(&self) -> Result<::std::collections::HashMap<String, arg::Variant<Box<arg::RefArg + 'static>>>, Self::Err>;
+    fn get_metadata(
+        &self,
+    ) -> Result<
+        ::std::collections::HashMap<String, arg::Variant<Box<arg::RefArg + 'static>>>,
+        Self::Err,
+    >;
     fn get_volume(&self) -> Result<f64, Self::Err>;
     fn set_volume(&self, value: f64) -> Result<(), Self::Err>;
     fn get_position(&self) -> Result<i64, Self::Err>;
@@ -35,164 +40,285 @@ pub trait OrgMprisMediaPlayer2Player {
     fn get_can_control(&self) -> Result<bool, Self::Err>;
 }
 
-impl<'a, C: ::std::ops::Deref<Target=dbus::Connection>> OrgMprisMediaPlayer2Player for dbus::ConnPath<'a, C> {
+impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Player
+    for dbus::ConnPath<'a, C>
+{
     type Err = dbus::Error;
 
     fn next(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(&"org.mpris.MediaPlayer2.Player".into(), &"Next".into(), |_| {
-        }));
+        let mut m = try!(self.method_call_with_args(
+            &"org.mpris.MediaPlayer2.Player".into(),
+            &"Next".into(),
+            |_| {}
+        ));
         try!(m.as_result());
         Ok(())
     }
 
     fn previous(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(&"org.mpris.MediaPlayer2.Player".into(), &"Previous".into(), |_| {
-        }));
+        let mut m = try!(self.method_call_with_args(
+            &"org.mpris.MediaPlayer2.Player".into(),
+            &"Previous".into(),
+            |_| {}
+        ));
         try!(m.as_result());
         Ok(())
     }
 
     fn pause(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(&"org.mpris.MediaPlayer2.Player".into(), &"Pause".into(), |_| {
-        }));
+        let mut m = try!(self.method_call_with_args(
+            &"org.mpris.MediaPlayer2.Player".into(),
+            &"Pause".into(),
+            |_| {}
+        ));
         try!(m.as_result());
         Ok(())
     }
 
     fn play_pause(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(&"org.mpris.MediaPlayer2.Player".into(), &"PlayPause".into(), |_| {
-        }));
+        let mut m = try!(self.method_call_with_args(
+            &"org.mpris.MediaPlayer2.Player".into(),
+            &"PlayPause".into(),
+            |_| {}
+        ));
         try!(m.as_result());
         Ok(())
     }
 
     fn stop(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(&"org.mpris.MediaPlayer2.Player".into(), &"Stop".into(), |_| {
-        }));
+        let mut m = try!(self.method_call_with_args(
+            &"org.mpris.MediaPlayer2.Player".into(),
+            &"Stop".into(),
+            |_| {}
+        ));
         try!(m.as_result());
         Ok(())
     }
 
     fn play(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(&"org.mpris.MediaPlayer2.Player".into(), &"Play".into(), |_| {
-        }));
+        let mut m = try!(self.method_call_with_args(
+            &"org.mpris.MediaPlayer2.Player".into(),
+            &"Play".into(),
+            |_| {}
+        ));
         try!(m.as_result());
         Ok(())
     }
 
     fn seek(&self, offset: i64) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(&"org.mpris.MediaPlayer2.Player".into(), &"Seek".into(), |msg| {
-            let mut i = arg::IterAppend::new(msg);
-            i.append(offset);
-        }));
+        let mut m = try!(self.method_call_with_args(
+            &"org.mpris.MediaPlayer2.Player".into(),
+            &"Seek".into(),
+            |msg| {
+                let mut i = arg::IterAppend::new(msg);
+                i.append(offset);
+            }
+        ));
         try!(m.as_result());
         Ok(())
     }
 
     fn set_position(&self, track_id: dbus::Path, position: i64) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(&"org.mpris.MediaPlayer2.Player".into(), &"SetPosition".into(), |msg| {
-            let mut i = arg::IterAppend::new(msg);
-            i.append(track_id);
-            i.append(position);
-        }));
+        let mut m = try!(self.method_call_with_args(
+            &"org.mpris.MediaPlayer2.Player".into(),
+            &"SetPosition".into(),
+            |msg| {
+                let mut i = arg::IterAppend::new(msg);
+                i.append(track_id);
+                i.append(position);
+            }
+        ));
         try!(m.as_result());
         Ok(())
     }
 
     fn open_uri(&self, uri: &str) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(&"org.mpris.MediaPlayer2.Player".into(), &"OpenUri".into(), |msg| {
-            let mut i = arg::IterAppend::new(msg);
-            i.append(uri);
-        }));
+        let mut m = try!(self.method_call_with_args(
+            &"org.mpris.MediaPlayer2.Player".into(),
+            &"OpenUri".into(),
+            |msg| {
+                let mut i = arg::IterAppend::new(msg);
+                i.append(uri);
+            }
+        ));
         try!(m.as_result());
         Ok(())
     }
 
     fn get_playback_status(&self) -> Result<String, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "PlaybackStatus")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "PlaybackStatus",
+        )
     }
 
     fn get_loop_status(&self) -> Result<String, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "LoopStatus")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "LoopStatus",
+        )
     }
 
     fn get_rate(&self) -> Result<f64, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "Rate")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "Rate",
+        )
     }
 
     fn get_shuffle(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "Shuffle")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "Shuffle",
+        )
     }
 
-    fn get_metadata(&self) -> Result<::std::collections::HashMap<String, arg::Variant<Box<arg::RefArg + 'static>>>, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "Metadata")
+    fn get_metadata(
+        &self,
+    ) -> Result<
+        ::std::collections::HashMap<String, arg::Variant<Box<arg::RefArg + 'static>>>,
+        Self::Err,
+    > {
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "Metadata",
+        )
     }
 
     fn get_volume(&self) -> Result<f64, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "Volume")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "Volume",
+        )
     }
 
     fn get_position(&self) -> Result<i64, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "Position")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "Position",
+        )
     }
 
     fn get_minimum_rate(&self) -> Result<f64, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "MinimumRate")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "MinimumRate",
+        )
     }
 
     fn get_maximum_rate(&self) -> Result<f64, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "MaximumRate")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "MaximumRate",
+        )
     }
 
     fn get_can_go_next(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "CanGoNext")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "CanGoNext",
+        )
     }
 
     fn get_can_go_previous(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "CanGoPrevious")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "CanGoPrevious",
+        )
     }
 
     fn get_can_play(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "CanPlay")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "CanPlay",
+        )
     }
 
     fn get_can_pause(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "CanPause")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "CanPause",
+        )
     }
 
     fn get_can_seek(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "CanSeek")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "CanSeek",
+        )
     }
 
     fn get_can_control(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(&self, "org.mpris.MediaPlayer2.Player", "CanControl")
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "CanControl",
+        )
     }
 
     fn set_loop_status(&self, value: String) -> Result<(), Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(&self, "org.mpris.MediaPlayer2.Player", "LoopStatus", value)
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "LoopStatus",
+            value,
+        )
     }
 
     fn set_rate(&self, value: f64) -> Result<(), Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(&self, "org.mpris.MediaPlayer2.Player", "Rate", value)
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "Rate",
+            value,
+        )
     }
 
     fn set_shuffle(&self, value: bool) -> Result<(), Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(&self, "org.mpris.MediaPlayer2.Player", "Shuffle", value)
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "Shuffle",
+            value,
+        )
     }
 
     fn set_volume(&self, value: f64) -> Result<(), Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(&self, "org.mpris.MediaPlayer2.Player", "Volume", value)
+        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(
+            &self,
+            "org.mpris.MediaPlayer2.Player",
+            "Volume",
+            value,
+        )
     }
 }
 
-pub fn org_mpris_media_player2_player_server<F, T, D>(factory: &tree::Factory<tree::MTFn<D>, D>, data: D::Interface, f: F) -> tree::Interface<tree::MTFn<D>, D>
+pub fn org_mpris_media_player2_player_server<F, T, D>(
+    factory: &tree::Factory<tree::MTFn<D>, D>,
+    data: D::Interface,
+    f: F,
+) -> tree::Interface<tree::MTFn<D>, D>
 where
     D: tree::DataType,
     D::Method: Default,
     D::Property: Default,
     D::Signal: Default,
-    T: OrgMprisMediaPlayer2Player<Err=tree::MethodErr>,
-    F: 'static + for <'z> Fn(& 'z tree::MethodInfo<tree::MTFn<D>, D>) -> & 'z T,
+    T: OrgMprisMediaPlayer2Player<Err = tree::MethodErr>,
+    F: 'static + for<'z> Fn(&'z tree::MethodInfo<tree::MTFn<D>, D>) -> &'z T,
 {
     let i = factory.interface("org.mpris.MediaPlayer2.Player", data);
     let f = ::std::sync::Arc::new(f);
@@ -201,7 +327,7 @@ where
         let d = fclone(minfo);
         try!(d.next());
         let rm = minfo.msg.method_return();
-        Ok(vec!(rm))
+        Ok(vec![rm])
     };
     let m = factory.method("Next", Default::default(), h);
     let i = i.add_m(m);
@@ -211,7 +337,7 @@ where
         let d = fclone(minfo);
         try!(d.previous());
         let rm = minfo.msg.method_return();
-        Ok(vec!(rm))
+        Ok(vec![rm])
     };
     let m = factory.method("Previous", Default::default(), h);
     let i = i.add_m(m);
@@ -221,7 +347,7 @@ where
         let d = fclone(minfo);
         try!(d.pause());
         let rm = minfo.msg.method_return();
-        Ok(vec!(rm))
+        Ok(vec![rm])
     };
     let m = factory.method("Pause", Default::default(), h);
     let i = i.add_m(m);
@@ -231,7 +357,7 @@ where
         let d = fclone(minfo);
         try!(d.play_pause());
         let rm = minfo.msg.method_return();
-        Ok(vec!(rm))
+        Ok(vec![rm])
     };
     let m = factory.method("PlayPause", Default::default(), h);
     let i = i.add_m(m);
@@ -241,7 +367,7 @@ where
         let d = fclone(minfo);
         try!(d.stop());
         let rm = minfo.msg.method_return();
-        Ok(vec!(rm))
+        Ok(vec![rm])
     };
     let m = factory.method("Stop", Default::default(), h);
     let i = i.add_m(m);
@@ -251,7 +377,7 @@ where
         let d = fclone(minfo);
         try!(d.play());
         let rm = minfo.msg.method_return();
-        Ok(vec!(rm))
+        Ok(vec![rm])
     };
     let m = factory.method("Play", Default::default(), h);
     let i = i.add_m(m);
@@ -263,7 +389,7 @@ where
         let d = fclone(minfo);
         try!(d.seek(offset));
         let rm = minfo.msg.method_return();
-        Ok(vec!(rm))
+        Ok(vec![rm])
     };
     let m = factory.method("Seek", Default::default(), h);
     let m = m.in_arg(("Offset", "x"));
@@ -277,7 +403,7 @@ where
         let d = fclone(minfo);
         try!(d.set_position(track_id, position));
         let rm = minfo.msg.method_return();
-        Ok(vec!(rm))
+        Ok(vec![rm])
     };
     let m = factory.method("SetPosition", Default::default(), h);
     let m = m.in_arg(("TrackId", "o"));
@@ -291,7 +417,7 @@ where
         let d = fclone(minfo);
         try!(d.open_uri(uri));
         let rm = minfo.msg.method_return();
-        Ok(vec!(rm))
+        Ok(vec![rm])
     };
     let m = factory.method("OpenUri", Default::default(), h);
     let m = m.in_arg(("Uri", "s"));
@@ -362,7 +488,11 @@ where
     });
     let i = i.add_p(p);
 
-    let p = factory.property::<::std::collections::HashMap<&str, arg::Variant<Box<arg::RefArg>>>, _>("Metadata", Default::default());
+    let p = factory
+        .property::<::std::collections::HashMap<&str, arg::Variant<Box<arg::RefArg>>>, _>(
+            "Metadata",
+            Default::default(),
+        );
     let p = p.access(tree::Access::Read);
     let fclone = f.clone();
     let p = p.on_get(move |a, pinfo| {
@@ -515,7 +645,8 @@ impl dbus::SignalArgs for OrgMprisMediaPlayer2PlayerSeeked {
 #[derive(Debug, Default)]
 pub struct OrgFreedesktopDBusPropertiesPropertiesChanged {
     pub interface_name: String,
-    pub changed_properties: ::std::collections::HashMap<String, arg::Variant<Box<arg::RefArg + 'static>>>,
+    pub changed_properties:
+        ::std::collections::HashMap<String, arg::Variant<Box<arg::RefArg + 'static>>>,
     pub invalidated_properties: Vec<String>,
 }
 

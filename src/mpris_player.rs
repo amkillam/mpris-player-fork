@@ -1,81 +1,83 @@
-extern crate glib;
 extern crate dbus;
-use dbus::arg::{Variant, RefArg};
-use dbus::{Connection, BusType, tree, Path, SignalArgs};
-use dbus::tree::{Interface, MTFn, Factory};
+extern crate glib;
+use dbus::arg::{RefArg, Variant};
+use dbus::tree::{Factory, Interface, MTFn};
+use dbus::{tree, BusType, Connection, Path, SignalArgs};
 use std::collections::HashMap;
 
-use std::rc::Rc;
 use std::cell::Cell;
 use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::Arc;
 
 use generated::mediaplayer2::org_mpris_media_player2_server;
-use generated::mediaplayer2_player::{org_mpris_media_player2_player_server, OrgFreedesktopDBusPropertiesPropertiesChanged};
+use generated::mediaplayer2_player::{
+    org_mpris_media_player2_player_server, OrgFreedesktopDBusPropertiesPropertiesChanged,
+};
 
-use OrgMprisMediaPlayer2Player;
 use OrgMprisMediaPlayer2;
+use OrgMprisMediaPlayer2Player;
 
+use LoopStatus;
 use Metadata;
 use PlaybackStatus;
-use LoopStatus;
 
-pub struct MprisPlayer{
+pub struct MprisPlayer {
     connection: Arc<Connection>,
     factory: Arc<Factory<MTFn<TData>, TData>>,
 
     // OrgMprisMediaPlayer2         Type
-    can_quit: Cell<bool>,           // R
-    fullscreen: Cell<bool>,         // R/W
-    can_set_fullscreen: Cell<bool>, // R
-    can_raise: Cell<bool>,          // R
-    has_track_list: Cell<bool>,     // R
-    identify: String,               // R
-    desktop_entry: String,          // R
+    can_quit: Cell<bool>,                        // R
+    fullscreen: Cell<bool>,                      // R/W
+    can_set_fullscreen: Cell<bool>,              // R
+    can_raise: Cell<bool>,                       // R
+    has_track_list: Cell<bool>,                  // R
+    identify: String,                            // R
+    desktop_entry: String,                       // R
     supported_uri_schemes: RefCell<Vec<String>>, // R
     supported_mime_types: RefCell<Vec<String>>,  // R
 
     // OrgMprisMediaPlayer2Player   Type
     playback_status: Cell<PlaybackStatus>, // R
-    loop_status: Cell<LoopStatus>,  // R/W
-    rate: Cell<f64>,                // R/W
-    shuffle: Cell<bool>,            // R/W
-    metadata: RefCell<Metadata>,    // R
-    volume: Cell<f64>,              // R/W
-    position: Cell<i64>,            // R
-    minimum_rate: Cell<f64>,        // R
-    maximum_rate: Cell<f64>,        // R
-    can_go_next: Cell<bool>,        // R
-    can_go_previous: Cell<bool>,    // R
-    can_play: Cell<bool>,           // R
-    can_pause: Cell<bool>,          // R
-    can_seek: Cell<bool>,           // R
-    can_control: Cell<bool>,        // R
+    loop_status: Cell<LoopStatus>,         // R/W
+    rate: Cell<f64>,                       // R/W
+    shuffle: Cell<bool>,                   // R/W
+    metadata: RefCell<Metadata>,           // R
+    volume: Cell<f64>,                     // R/W
+    position: Cell<i64>,                   // R
+    minimum_rate: Cell<f64>,               // R
+    maximum_rate: Cell<f64>,               // R
+    can_go_next: Cell<bool>,               // R
+    can_go_previous: Cell<bool>,           // R
+    can_play: Cell<bool>,                  // R
+    can_pause: Cell<bool>,                 // R
+    can_seek: Cell<bool>,                  // R
+    can_control: Cell<bool>,               // R
 
     // Callbacks
-    raise_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
-    quit_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
-    next_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
-    previous_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
-    pause_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
-    play_pause_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
-    stop_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
-    play_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
-    seek_cb: RefCell<Vec<Rc<RefCell<FnMut(i64)>>>>,
-    open_uri_cb: RefCell<Vec<Rc<RefCell<FnMut(&str)>>>>,
-    fullscreen_cb: RefCell<Vec<Rc<RefCell<FnMut(bool)>>>>,
-    loop_status_cb: RefCell<Vec<Rc<RefCell<FnMut(LoopStatus)>>>>,
-    rate_cb: RefCell<Vec<Rc<RefCell<FnMut(f64)>>>>,
-    shuffle_cb: RefCell<Vec<Rc<RefCell<FnMut(bool)>>>>,
-    volume_cb: RefCell<Vec<Rc<RefCell<FnMut(f64)>>>>,
+    raise_cb: RefCell<Vec<Rc<RefCell<dyn FnMut()>>>>,
+    quit_cb: RefCell<Vec<Rc<RefCell<dyn FnMut()>>>>,
+    next_cb: RefCell<Vec<Rc<RefCell<dyn FnMut()>>>>,
+    previous_cb: RefCell<Vec<Rc<RefCell<dyn FnMut()>>>>,
+    pause_cb: RefCell<Vec<Rc<RefCell<dyn FnMut()>>>>,
+    play_pause_cb: RefCell<Vec<Rc<RefCell<dyn FnMut()>>>>,
+    stop_cb: RefCell<Vec<Rc<RefCell<dyn FnMut()>>>>,
+    play_cb: RefCell<Vec<Rc<RefCell<dyn FnMut()>>>>,
+    seek_cb: RefCell<Vec<Rc<RefCell<dyn FnMut(i64)>>>>,
+    open_uri_cb: RefCell<Vec<Rc<RefCell<dyn FnMut(&str)>>>>,
+    fullscreen_cb: RefCell<Vec<Rc<RefCell<dyn FnMut(bool)>>>>,
+    loop_status_cb: RefCell<Vec<Rc<RefCell<dyn FnMut(LoopStatus)>>>>,
+    rate_cb: RefCell<Vec<Rc<RefCell<dyn FnMut(f64)>>>>,
+    shuffle_cb: RefCell<Vec<Rc<RefCell<dyn FnMut(bool)>>>>,
+    volume_cb: RefCell<Vec<Rc<RefCell<dyn FnMut(f64)>>>>,
 }
 
-impl MprisPlayer{
-    pub fn new(mpris_name: String, identify: String, desktop_entry: String) -> Arc<Self>{
+impl MprisPlayer {
+    pub fn new(mpris_name: String, identify: String, desktop_entry: String) -> Arc<Self> {
         let connection = Arc::new(Connection::get_private(BusType::Session).unwrap());
         let factory = Arc::new(Factory::new_fn());
 
-        let mpris_player = Arc::new(MprisPlayer{
+        let mpris_player = Arc::new(MprisPlayer {
             connection,
             factory,
 
@@ -123,34 +125,42 @@ impl MprisPlayer{
         });
 
         // Create OrgMprisMediaPlayer2 interface
-        let root_iface: Interface<MTFn<TData>, TData> = org_mpris_media_player2_server(&mpris_player.factory, (), |m| {
-            let a: &Arc<MprisPlayer> = m.path.get_data();
-            let b: &MprisPlayer = &a;
-            b
-        });
+        let root_iface: Interface<MTFn<TData>, TData> =
+            org_mpris_media_player2_server(&mpris_player.factory, (), |m| {
+                let a: &Arc<MprisPlayer> = m.path.get_data();
+                let b: &MprisPlayer = &a;
+                b
+            });
 
         // Create OrgMprisMediaPlayer2Player interface
-        let player_iface: Interface<MTFn<TData>, TData> = org_mpris_media_player2_player_server(&mpris_player.factory, (), |m| {
-            let a: &Arc<MprisPlayer> = m.path.get_data();
-            let b: &MprisPlayer = &a;
-            b
-        });
+        let player_iface: Interface<MTFn<TData>, TData> =
+            org_mpris_media_player2_player_server(&mpris_player.factory, (), |m| {
+                let a: &Arc<MprisPlayer> = m.path.get_data();
+                let b: &MprisPlayer = &a;
+                b
+            });
 
         // Create dbus tree
         let mut tree = mpris_player.factory.tree(());
-        tree = tree.add(mpris_player.factory.object_path("/org/mpris/MediaPlayer2", mpris_player.clone())
-            .introspectable()
-            .add(root_iface)
-            .add(player_iface)
+        tree = tree.add(
+            mpris_player
+                .factory
+                .object_path("/org/mpris/MediaPlayer2", mpris_player.clone())
+                .introspectable()
+                .add(root_iface)
+                .add(player_iface),
         );
 
         // Setup dbus connection
-        mpris_player.connection.register_name(&format!("org.mpris.MediaPlayer2.{}", mpris_name), 0).unwrap();
+        mpris_player
+            .connection
+            .register_name(&format!("org.mpris.MediaPlayer2.{}", mpris_name), 0)
+            .unwrap();
         tree.set_registered(&mpris_player.connection, true).unwrap();
         mpris_player.connection.add_handler(tree);
 
         let connection = mpris_player.connection.clone();
-        glib::source::timeout_add_local(250, move||{
+        glib::source::timeout_add_local(250, move || {
             connection.incoming(5).next();
             glib::Continue(true)
         });
@@ -158,9 +168,12 @@ impl MprisPlayer{
         mpris_player
     }
 
-    pub fn property_changed<T: 'static>(&self, name: String, value: T) where T: dbus::arg::RefArg {
+    pub fn property_changed<T: 'static>(&self, name: String, value: T)
+    where
+        T: dbus::arg::RefArg,
+    {
         let mut changed_properties = HashMap::new();
-        let x = Box::new(value) as Box<RefArg>;
+        let x = Box::new(value) as Box<dyn RefArg>;
         changed_properties.insert(name, Variant(x));
 
         let signal = OrgFreedesktopDBusPropertiesPropertiesChanged {
@@ -169,185 +182,238 @@ impl MprisPlayer{
             invalidated_properties: Vec::new(),
         };
 
-        self.connection.send(signal.to_emit_message(&Path::new("/org/mpris/MediaPlayer2").unwrap())).unwrap();
+        self.connection
+            .send(signal.to_emit_message(&Path::new("/org/mpris/MediaPlayer2").unwrap()))
+            .unwrap();
     }
-
 
     //
     // OrgMprisMediaPlayer2 setters...
     //
 
-    pub fn set_supported_mime_types(&self, value: Vec<String>){
-        *self.supported_mime_types.borrow_mut() = value;
-        self.property_changed("SupportedMimeTypes".to_string(), self.get_supported_mime_types().unwrap());
+    pub fn set_supported_mime_types(&self, value: Vec<String>) {
+        if *self.supported_mime_types.borrow_mut() != value {
+            *self.supported_mime_types.borrow_mut() = value;
+            self.property_changed(
+                "SupportedMimeTypes".to_string(),
+                self.get_supported_mime_types().unwrap(),
+            );
+        }
     }
 
-    pub fn set_supported_uri_schemes(&self, value: Vec<String>){
-        *self.supported_uri_schemes.borrow_mut() = value;
-        self.property_changed("SupportedUriSchemes".to_string(), self.get_supported_uri_schemes().unwrap());
+    pub fn set_supported_uri_schemes(&self, value: Vec<String>) {
+        if *self.supported_uri_schemes.borrow_mut() != value {
+            *self.supported_uri_schemes.borrow_mut() = value;
+            self.property_changed(
+                "SupportedUriSchemes".to_string(),
+                self.get_supported_uri_schemes().unwrap(),
+            );
+        }
     }
 
-    pub fn set_can_quit(&self, value: bool){
-        self.can_quit.set(value);
-        self.property_changed("CanQuit".to_string(), self.get_can_quit().unwrap());
+    pub fn set_can_quit(&self, value: bool) {
+        if self.can_quit.get() != value {
+            self.can_quit.set(value);
+            self.property_changed("CanQuit".to_string(), self.get_can_quit().unwrap());
+        }
     }
 
-    pub fn set_can_raise(&self, value: bool){
-        self.can_raise.set(value);
-        self.property_changed("CanRaise".to_string(), self.get_can_raise().unwrap());
+    pub fn set_can_raise(&self, value: bool) {
+        if self.can_raise.get() != value {
+            self.can_raise.set(value);
+            self.property_changed("CanRaise".to_string(), self.get_can_raise().unwrap());
+        }
     }
 
-    pub fn set_can_set_fullscreen(&self, value: bool){
-        self.can_set_fullscreen.set(value);
-        self.property_changed("CanSetFullscreen".to_string(), self.get_can_set_fullscreen().unwrap());
+    pub fn set_can_set_fullscreen(&self, value: bool) {
+        if self.can_set_fullscreen.get() != value {
+            self.can_set_fullscreen.set(value);
+            self.property_changed(
+                "CanSetFullscreen".to_string(),
+                self.get_can_set_fullscreen().unwrap(),
+            );
+        }
     }
 
-    pub fn set_has_track_list(&self, value: bool){
-        self.has_track_list.set(value);
-        self.property_changed("HasTrackList".to_string(), self.get_has_track_list().unwrap());
+    pub fn set_has_track_list(&self, value: bool) {
+        if self.has_track_list.get() != value {
+            self.has_track_list.set(value);
+            self.property_changed(
+                "HasTrackList".to_string(),
+                self.get_has_track_list().unwrap(),
+            );
+        }
     }
-
 
     //
     // OrgMprisMediaPlayer2Player setters...
     //
 
-    pub fn set_playback_status(&self, value: PlaybackStatus){
-        self.playback_status.set(value);
-        self.property_changed("PlaybackStatus".to_string(), self.get_playback_status().unwrap());
+    pub fn set_playback_status(&self, value: PlaybackStatus) {
+        if self.playback_status.get() != value {
+            self.playback_status.set(value);
+            self.property_changed(
+                "PlaybackStatus".to_string(),
+                self.get_playback_status().unwrap(),
+            );
+        }
     }
 
-    pub fn set_loop_status(&self, value: LoopStatus){
-        self.loop_status.set(value);
-        self.property_changed("LoopStatus".to_string(), self.get_loop_status().unwrap());
+    pub fn set_loop_status(&self, value: LoopStatus) {
+        if self.loop_status.get() != value {
+            self.loop_status.set(value);
+            self.property_changed("LoopStatus".to_string(), self.get_loop_status().unwrap());
+        }
     }
 
-    pub fn set_metadata(&self, metadata: Metadata){
-        *self.metadata.borrow_mut() = metadata;
-        self.property_changed("Metadata".to_string(), self.get_metadata().unwrap());
+    pub fn set_metadata(&self, metadata: Metadata) {
+        if *self.metadata.borrow_mut() != metadata {
+            *self.metadata.borrow_mut() = metadata;
+            self.property_changed("Metadata".to_string(), self.get_metadata().unwrap());
+        }
     }
 
-    pub fn set_position(&self, value: i64){
-        self.position.set(value);
-        self.property_changed("Position".to_string(), self.get_position().unwrap());
+    pub fn set_position(&self, value: i64) {
+        if self.position.get() != value {
+            self.position.set(value);
+            self.property_changed("Position".to_string(), self.get_position().unwrap());
+        }
     }
 
-    pub fn set_minimum_rate(&self, value: f64){
-        self.minimum_rate.set(value);
-        self.property_changed("MinimumRate".to_string(), self.get_minimum_rate().unwrap());
+    pub fn set_minimum_rate(&self, value: f64) {
+        if self.minimum_rate.get() != value {
+            self.minimum_rate.set(value);
+            self.property_changed("MinimumRate".to_string(), self.get_minimum_rate().unwrap());
+        }
     }
 
-    pub fn set_maximum_rate(&self, value: f64){
-        self.maximum_rate.set(value);
-        self.property_changed("MaximumRate".to_string(), self.get_maximum_rate().unwrap());
+    pub fn set_maximum_rate(&self, value: f64) {
+        if self.maximum_rate.get() != value {
+            self.maximum_rate.set(value);
+            self.property_changed("MaximumRate".to_string(), self.get_maximum_rate().unwrap());
+        }
     }
 
-    pub fn set_can_go_next(&self, value: bool){
-        self.can_go_next.set(value);
-        self.property_changed("CanGoNext".to_string(), self.get_can_go_next().unwrap());
+    pub fn set_can_go_next(&self, value: bool) {
+        if self.can_go_next.get() != value {
+            self.can_go_next.set(value);
+            self.property_changed("CanGoNext".to_string(), self.get_can_go_next().unwrap());
+        }
     }
 
-    pub fn set_can_go_previous(&self, value: bool){
-        self.can_go_previous.set(value);
-        self.property_changed("CanPrevious".to_string(), self.get_can_go_previous().unwrap());
+    pub fn set_can_go_previous(&self, value: bool) {
+        if self.can_go_previous.get() != value {
+            self.can_go_previous.set(value);
+            self.property_changed(
+                "CanPrevious".to_string(),
+                self.get_can_go_previous().unwrap(),
+            );
+        }
     }
 
-    pub fn set_can_play(&self, value: bool){
-        self.can_play.set(value);
-        self.property_changed("CanPlay".to_string(), self.get_can_play().unwrap());
+    pub fn set_can_play(&self, value: bool) {
+        if self.can_play.get() != value {
+            self.can_play.set(value);
+            self.property_changed("CanPlay".to_string(), self.get_can_play().unwrap());
+        }
     }
 
-    pub fn set_can_pause(&self, value: bool){
-        self.can_pause.set(value);
-        self.property_changed("CanPause".to_string(), self.get_can_pause().unwrap());
+    pub fn set_can_pause(&self, value: bool) {
+        if self.can_pause.get() != value {
+            self.can_pause.set(value);
+            self.property_changed("CanPause".to_string(), self.get_can_pause().unwrap());
+        }
     }
 
-    pub fn set_can_seek(&self, value: bool){
-        self.can_seek.set(value);
-        self.property_changed("CanSeek".to_string(), self.get_can_seek().unwrap());
+    pub fn set_can_seek(&self, value: bool) {
+        if self.can_seek.get() != value {
+            self.can_seek.set(value);
+            self.property_changed("CanSeek".to_string(), self.get_can_seek().unwrap());
+        }
     }
 
-    pub fn set_can_control(&self, value: bool){
-        self.can_control.set(value);
-        self.property_changed("CanControl".to_string(), self.get_can_control().unwrap());
+    pub fn set_can_control(&self, value: bool) {
+        if self.can_control.get() != value {
+            self.can_control.set(value);
+            self.property_changed("CanControl".to_string(), self.get_can_control().unwrap());
+        }
     }
-
 
     //
     // Callbacks
     //
 
-    pub fn connect_raise<F: FnMut()+'static>(&self, callback: F) {
+    pub fn connect_raise<F: FnMut() + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.raise_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_quit<F: FnMut()+'static>(&self, callback: F) {
+    pub fn connect_quit<F: FnMut() + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.quit_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_next<F: FnMut()+'static>(&self, callback: F) {
+    pub fn connect_next<F: FnMut() + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.next_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_previous<F: FnMut()+'static>(&self, callback: F) {
+    pub fn connect_previous<F: FnMut() + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.previous_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_pause<F: FnMut()+'static>(&self, callback: F) {
+    pub fn connect_pause<F: FnMut() + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.pause_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_play_pause<F: FnMut()+'static>(&self, callback: F) {
+    pub fn connect_play_pause<F: FnMut() + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.play_pause_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_stop<F: FnMut()+'static>(&self, callback: F) {
+    pub fn connect_stop<F: FnMut() + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.stop_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_play<F: FnMut()+'static>(&self, callback: F) {
+    pub fn connect_play<F: FnMut() + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.play_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_seek<F: FnMut(i64)+'static>(&self, callback: F) {
+    pub fn connect_seek<F: FnMut(i64) + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.seek_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_open_uri<F: FnMut(&str)+'static>(&self, callback: F) {
+    pub fn connect_open_uri<F: FnMut(&str) + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.open_uri_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_fullscreen<F: FnMut(bool)+'static>(&self, callback: F) {
+    pub fn connect_fullscreen<F: FnMut(bool) + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.fullscreen_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_loop_status<F: FnMut(LoopStatus)+'static>(&self, callback: F) {
+    pub fn connect_loop_status<F: FnMut(LoopStatus) + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.loop_status_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_rate<F: FnMut(f64)+'static>(&self, callback: F) {
+    pub fn connect_rate<F: FnMut(f64) + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.rate_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_shuffle<F: FnMut(bool)+'static>(&self, callback: F) {
+    pub fn connect_shuffle<F: FnMut(bool) + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.shuffle_cb.borrow_mut().push(cell);
     }
 
-    pub fn connect_volume<F: FnMut(f64)+'static>(&self, callback: F) {
+    pub fn connect_volume<F: FnMut(f64) + 'static>(&self, callback: F) {
         let cell = Rc::new(RefCell::new(callback));
         self.volume_cb.borrow_mut().push(cell);
     }
@@ -358,14 +424,16 @@ impl OrgMprisMediaPlayer2 for MprisPlayer {
 
     fn raise(&self) -> Result<(), Self::Err> {
         for callback in self.raise_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)();
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)();
         }
         Ok(())
     }
 
     fn quit(&self) -> Result<(), Self::Err> {
         for callback in self.quit_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)();
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)();
         }
         Ok(())
     }
@@ -382,7 +450,8 @@ impl OrgMprisMediaPlayer2 for MprisPlayer {
         self.fullscreen.set(value);
         self.property_changed("Fullscreen".to_string(), self.get_fullscreen().unwrap());
         for callback in self.fullscreen_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)(value);
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)(value);
         }
         Ok(())
     }
@@ -421,49 +490,56 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
 
     fn next(&self) -> Result<(), Self::Err> {
         for callback in self.next_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)();
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)();
         }
         Ok(())
     }
 
     fn previous(&self) -> Result<(), Self::Err> {
         for callback in self.previous_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)();
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)();
         }
         Ok(())
     }
 
     fn pause(&self) -> Result<(), Self::Err> {
         for callback in self.pause_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)();
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)();
         }
         Ok(())
     }
 
     fn play_pause(&self) -> Result<(), Self::Err> {
         for callback in self.play_pause_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)();
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)();
         }
         Ok(())
     }
 
     fn stop(&self) -> Result<(), Self::Err> {
         for callback in self.stop_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)();
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)();
         }
         Ok(())
     }
 
     fn play(&self) -> Result<(), Self::Err> {
         for callback in self.play_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)();
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)();
         }
         Ok(())
     }
 
     fn seek(&self, offset: i64) -> Result<(), Self::Err> {
         for callback in self.seek_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)(offset);
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)(offset);
         }
         Ok(())
     }
@@ -476,7 +552,8 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
 
     fn open_uri(&self, uri: &str) -> Result<(), Self::Err> {
         for callback in self.open_uri_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)(uri);
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)(uri);
         }
         Ok(())
     }
@@ -498,7 +575,8 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
         self.loop_status.set(ls.clone());
         self.property_changed("LoopStatus".to_string(), self.get_loop_status().unwrap());
         for callback in self.loop_status_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)(ls);
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)(ls);
         }
         Ok(())
     }
@@ -511,7 +589,8 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
         self.rate.set(value);
         self.property_changed("Rate".to_string(), self.get_rate().unwrap());
         for callback in self.rate_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)(value);
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)(value);
         }
         Ok(())
     }
@@ -524,12 +603,15 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
         self.shuffle.set(value);
         self.property_changed("Shuffle".to_string(), self.get_volume().unwrap());
         for callback in self.shuffle_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)(value);
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)(value);
         }
         Ok(())
     }
 
-    fn get_metadata(&self) -> Result<HashMap<String, Variant<Box<RefArg + 'static>>>, Self::Err> {
+    fn get_metadata(
+        &self,
+    ) -> Result<HashMap<String, Variant<Box<dyn RefArg + 'static>>>, Self::Err> {
         let metadata = self.metadata.borrow().to_hashmap();
         Ok(metadata)
     }
@@ -542,7 +624,8 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
         self.volume.set(value);
         self.property_changed("Volume".to_string(), self.get_volume().unwrap());
         for callback in self.volume_cb.borrow_mut().iter() {
-            let mut closure = callback.borrow_mut(); (&mut *closure)(value);
+            let mut closure = callback.borrow_mut();
+            (&mut *closure)(value);
         }
         Ok(())
     }
@@ -584,8 +667,8 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
     }
 }
 
-impl ::std::fmt::Debug for MprisPlayer{
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result  {
+impl ::std::fmt::Debug for MprisPlayer {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         write!(f, "mprisplayer")
     }
 }
