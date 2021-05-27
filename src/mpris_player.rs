@@ -305,7 +305,7 @@ impl MprisPlayer {
         if self.can_go_previous.get() != value {
             self.can_go_previous.set(value);
             self.property_changed(
-                "CanPrevious".to_string(),
+                "CanGoPrevious".to_string(),
                 self.get_can_go_previous().unwrap(),
             );
         }
