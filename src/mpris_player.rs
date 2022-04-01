@@ -129,7 +129,7 @@ impl MprisPlayer {
         let root_iface: Interface<MTFn<TData>, TData> =
             org_mpris_media_player2_server(&mpris_player.factory, (), |m| {
                 let a: &Arc<MprisPlayer> = m.path.get_data();
-                let b: &MprisPlayer = &a;
+                let b: &MprisPlayer = a;
                 b
             });
 
@@ -137,7 +137,7 @@ impl MprisPlayer {
         let player_iface: Interface<MTFn<TData>, TData> =
             org_mpris_media_player2_player_server(&mpris_player.factory, (), |m| {
                 let a: &Arc<MprisPlayer> = m.path.get_data();
-                let b: &MprisPlayer = &a;
+                let b: &MprisPlayer = a;
                 b
             });
 
@@ -573,7 +573,7 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
             "Playlist" => LoopStatus::Playlist,
             _ => LoopStatus::None,
         };
-        self.loop_status.set(ls.clone());
+        self.loop_status.set(ls);
         self.property_changed("LoopStatus".to_string(), self.get_loop_status().unwrap());
         for callback in self.loop_status_cb.borrow_mut().iter() {
             let mut closure = callback.borrow_mut();
