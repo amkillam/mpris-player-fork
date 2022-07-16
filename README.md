@@ -1,3 +1,7 @@
+**Note**: mpris-player is no longer actively maintained. We suggest using the [`mpris2-zbus`](https://github.com/pop-os/mpris2-zbus) crate instead.
+
+---
+
 # mpris-player
 #### A Rust library for creating MPRIS2 media players over D-Bus
 

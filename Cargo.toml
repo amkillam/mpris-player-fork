@@ -7,7 +7,7 @@ license = "GPL-3.0+"
 documentation = "https://docs.rs/mpris-player/"
 homepage = "https://gitlab.gnome.org/World/Rust/mpris-player"
 repository = "https://gitlab.gnome.org/World/Rust/mpris-player"
-keywords = ["mpris", "dbus"]
+keywords = ["deprecated"]
 
 [dependencies]
 dbus = "0.6.5"
