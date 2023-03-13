@@ -1,8 +1,13 @@
 extern crate dbus;
+extern crate dbus_tree;
 extern crate glib;
+
 use dbus::arg::{RefArg, Variant};
-use dbus::tree::{Factory, Interface, MTFn};
-use dbus::{tree, BusType, Connection, Path, SignalArgs};
+use dbus::ffidisp::{BusType, Connection};
+use dbus::Path;
+use dbus::message::SignalArgs;
+use self::dbus_tree as tree;
+use tree::{Factory, Interface, MTFn};
 use std::collections::HashMap;
 
 use std::cell::Cell;

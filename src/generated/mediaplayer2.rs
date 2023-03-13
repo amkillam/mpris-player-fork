@@ -1,6 +1,7 @@
 #![allow(dead_code)]
+extern crate dbus_tree;
 use dbus;
-use dbus::tree;
+use self::dbus_tree as tree;
 
 pub trait OrgMprisMediaPlayer2 {
     type Err;
@@ -18,8 +19,8 @@ pub trait OrgMprisMediaPlayer2 {
     fn get_supported_mime_types(&self) -> Result<Vec<String>, Self::Err>;
 }
 
-impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
-    for dbus::ConnPath<'a, C>
+impl<'a, C: ::std::ops::Deref<Target = dbus::ffidisp::Connection>> OrgMprisMediaPlayer2
+    for dbus::ffidisp::ConnPath<'a, C>
 {
     type Err = dbus::Error;
 
@@ -44,7 +45,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     }
 
     fn get_can_quit(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2",
             "CanQuit",
@@ -52,7 +53,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     }
 
     fn get_fullscreen(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2",
             "Fullscreen",
@@ -60,7 +61,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     }
 
     fn get_can_set_fullscreen(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2",
             "CanSetFullscreen",
@@ -68,7 +69,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     }
 
     fn get_can_raise(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2",
             "CanRaise",
@@ -76,7 +77,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     }
 
     fn get_has_track_list(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2",
             "HasTrackList",
@@ -84,7 +85,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     }
 
     fn get_identity(&self) -> Result<String, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2",
             "Identity",
@@ -92,7 +93,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     }
 
     fn get_desktop_entry(&self) -> Result<String, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2",
             "DesktopEntry",
@@ -100,7 +101,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     }
 
     fn get_supported_uri_schemes(&self) -> Result<Vec<String>, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2",
             "SupportedUriSchemes",
@@ -108,7 +109,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     }
 
     fn get_supported_mime_types(&self) -> Result<Vec<String>, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2",
             "SupportedMimeTypes",
@@ -116,7 +117,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     }
 
     fn set_fullscreen(&self, value: bool) -> Result<(), Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::set(
             &self,
             "org.mpris.MediaPlayer2",
             "Fullscreen",

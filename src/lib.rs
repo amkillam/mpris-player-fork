@@ -1,4 +1,5 @@
 extern crate dbus;
+extern crate dbus_tree as tree;
 extern crate glib;
 
 mod mpris_player;
